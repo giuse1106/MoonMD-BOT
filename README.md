@@ -10,7 +10,7 @@
 </p>  
   
 <p align="center">  
-  <a href="https://whatsapp.com/channel/0029VaZVlJZHwXb8naJBQN0J">  
+  <a href="https://whatsapp.com/channel/0029VbB44yXHrDZfC3rzQh1u">  
     <img src="https://img.shields.io/badge/Canale_Ufficiale-black?style=for-the-badge&logo=whatsapp" alt="Canale Ufficiale">  
   </a>  
 </p>  
@@ -160,7 +160,7 @@
 ## 📂 **Risorse Utili**  
   
 - **Dashboard:** [Visita qui](https://github.com/Giuse1606)  
-- **Canale WhatsApp:** [Unisciti qui](https://whatsapp.com/channel/0029VaZVlJZHwXb8naJBQN0J)  
+- **Canale WhatsApp:** [Unisciti qui](https://whatsapp.com/channel/0029VbB44yXHrDZfC3rzQh1u)
 - **Contatto:** [Scrivi qui](https://wa.me/393445461546)  
 - **Collaborazioni:** [Partecipa qui](https://whatsapp.com/channel/0029Vb1C4od5vKA35u1Mqc06)  
   
