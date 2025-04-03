@@ -1,5 +1,3 @@
-// Crediti a ChatUnity e GIUSE
-  
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=150&section=header&text=MoonMD%20-%20X%20ChatUnity&fontSize=30&fontColor=FFFFFF&animation=fadeIn" width="100%"/>   
   
 
@@ -18,7 +16,7 @@
 ---  
   
 ## 📌 **Introduzione**  
-© ChatUnity-Bot è un bot multifunzionale per WhatsApp, progettato per semplificare la gestione delle chat e offrire funzionalità avanzate. Con un'interfaccia intuitiva e una configurazione semplice, è perfetto per chiunque voglia migliorare l'esperienza su WhatsApp.  
+© MoonMD-Bot è un bot multifunzionale per WhatsApp, progettato per semplificare la gestione delle chat e offrire funzionalità avanzate. Con un'interfaccia intuitiva e una configurazione semplice, è perfetto per chiunque voglia migliorare l'esperienza su WhatsApp.  
   
 ---  
   
