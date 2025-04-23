@@ -1,71 +1,117 @@
-let cooldowns = {}
+const cooldowns = {}
 
-let handler = async (m, { conn, text, command, usedPrefix }) => {
-  let users = global.db.data.users
-  let senderId = m.sender
-  let senderName = conn.getName(senderId)
-  
-  // Cooldown di 5 minuti tra un crimine e l'altro
-  let cooldownTime = 5 * 60
-  if (cooldowns[m.sender] && Date.now() - cooldowns[m.sender] < cooldownTime * 1000) {
-    let tempoRimanente = formattaTempo(Math.ceil((cooldowns[m.sender] + cooldownTime * 1000 - Date.now()) / 1000))
-    return m.reply(`🚩 Hai già commesso un crimine di recente. Aspetta *⏱ ${tempoRimanente}* prima del prossimo crimine per evitare di essere catturato.`)
+const formatNumber = (num) => new Intl.NumberFormat('it-IT').format(num)
+
+const formattaTempo = (secondi) => {
+  const min = Math.floor(secondi / 60)
+  const sec = Math.floor(secondi % 60)
+  return `${min} minuti e ${sec} secondi`
+}
+
+const handler = async (m, { conn, text, command, usedPrefix }) => {
+  const users = global.db.data.users
+  const senderId = m.sender
+  const senderName = await conn.getName(senderId)
+
+  const cooldownTime = 5 * 60 * 1000
+  const lastCrime = cooldowns[senderId] || 0
+  const now = Date.now()
+
+  if (now - lastCrime < cooldownTime) {
+    const tempoRimanente = formattaTempo(Math.ceil((cooldownTime - (now - lastCrime)) / 1000))
+    return m.reply(`🚨 Hai già commesso un crimine! Riprova tra *⏱ ${tempoRimanente}* o rischi di essere catturato.`)
   }
-  
-  cooldowns[m.sender] = Date.now()
-  
-  // Seleziona un utente specifico se taggato, altrimenti casuale
-  let targetId = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : Object.keys(users).filter(id => id !== senderId)[Math.floor(Math.random() * (Object.keys(users).length - 1))]
-  let targetName = conn.getName(targetId)
 
-  // Quantità rubabile (15-50 Unitycoins)
-  let minRubare = 50
-  let maxRubare = 100
-  let quantita = Math.floor(Math.random() * (maxRubare - minRubare + 1)) + minRubare
+  cooldowns[senderId] = now
 
-  // Possibili esiti (0=successo, 1=catturato, 2=successo parziale)
-  let esito = Math.floor(Math.random() * 3)
+  const others = Object.keys(users).filter(id => id !== senderId)
+  const targetId = m.mentionedJid?.[0] || others[Math.floor(Math.random() * others.length)]
+  const targetName = await conn.getName(targetId)
 
-  switch (esito) {
-    case 0: // Successo completo
+  const min = 50, max = 100
+  const quantita = Math.floor(Math.random() * (max - min + 1)) + min
+  const outcome = Math.floor(Math.random() * 3)
+
+  const thumbUrl = 'https://i.ibb.co/4RSNsdx9/Sponge-Bob-friendship-wallet-meme-9.png'
+  const thumb = await (await fetch(thumbUrl)).buffer().catch(() => null)
+
+  const locationFake = {
+    key: {
+      participants: '0@s.whatsapp.net',
+      remoteJid: 'status@broadcast',
+      fromMe: false,
+      id: 'crime-fake',
+    },
+    message: {
+      locationMessage: {
+        name: "🚨 Crimine Notturno",
+        jpegThumbnail: thumb,
+      },
+    },
+    participant: '0@s.whatsapp.net',
+  }
+
+  switch (outcome) {
+    case 0: { // Successo completo
       users[senderId].limit += quantita
       users[targetId].limit -= quantita
       await conn.sendMessage(m.chat, {
-        text: `🚩 Crimine riuscito! Hai rubato *${quantita} 💶 Unitycoins* a @${targetId.split("@")[0]}\n\n*+${quantita} 💶* aggiunte al tuo saldo.`,
+        text: `
+╭───「 🕵️‍♂️ COLPO RIUSCITO 」───
+│
+│ 🔫 Hai derubato @${targetId.split("@")[0]}
+│ 💰 Guadagno: *+${formatNumber(quantita)} MoonCredit*
+│
+╰──────────────────────────
+        `.trim(),
         mentions: [targetId]
-      }, { quoted: m })
+      }, { quoted: locationFake })
       break
+    }
 
-    case 1: // Catturato
-      let multa = Math.min(Math.floor(Math.random() * (users[senderId].limit - minRubare + 1)) + minRubare, maxRubare)
+    case 1: { // Catturato
+      const multa = Math.min(Math.floor(Math.random() * (users[senderId].limit - min + 1)) + min, max)
       users[senderId].limit -= multa
-      await conn.reply(m.chat, `🚩 Sei stato catturato dagli sbirri! Multa di *-${multa} 💶 Unitycoins* per ${senderName}.`, m)
+      await conn.sendMessage(m.chat, {
+        text: `
+╭───「 🚓 SEI STATO PRESO 」───
+│
+│ 👮‍♂️ Gli sbirri ti hanno beccato!
+│ 💸 Multa: *-${formatNumber(multa)} MoonCredit*
+│
+╰─────────────────────────
+        `.trim()
+      }, { quoted: locationFake })
       break
+    }
 
-    case 2: // Successo parziale
-      let parziale = Math.min(Math.floor(Math.random() * (users[targetId].limit / 2 - minRubare + 1)) + minRubare, maxRubare)
+    case 2: { // Successo parziale
+      const parziale = Math.min(Math.floor(Math.random() * ((users[targetId].limit / 2) - min + 1)) + min, max)
       users[senderId].limit += parziale
       users[targetId].limit -= parziale
       await conn.sendMessage(m.chat, {
-        text: `🚩 Crimine riuscito a metà! Hai rubato solo *${parziale} 💶 Unitycoins* da @${targetId.split("@")[0]}\n\n*+${parziale} 💶* aggiunte al tuo saldo.`,
+        text: `
+╭───「 🕵️ COLPO A METÀ 」───
+│
+│ 💼 Hai rubato *${formatNumber(parziale)} MoonCredit* da @${targetId.split("@")[0]}
+│ ✨ Non era molto... ma meglio di niente.
+│
+╰───────────────────────
+        `.trim(),
         mentions: [targetId]
-      }, { quoted: m })
+      }, { quoted: locationFake })
       break
+    }
   }
-  
+
   global.db.write()
+  await m.react('🕵️‍♂️')
 }
 
-handler.tags = ['rpg']
 handler.help = ['crimine']
-handler.command = [ 'ruba', 'rapina']
+handler.tags = ['rpg']
+handler.command = ['ruba', 'rapina']
 handler.register = true
 handler.group = true
-
-function formattaTempo(secondi) {
-  let minuti = Math.floor(secondi / 60)
-  let secondiRimanenti = Math.floor(secondi % 60)
-  return `${minuti} minuti e ${secondiRimanenti} secondi`
-}
 
 export default handler

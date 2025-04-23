@@ -4,6 +4,6 @@ m.reply('𝐜𝐡𝐚𝐭 𝐬𝐛𝐥𝐨𝐜𝐜𝐚𝐭𝐚 𝐜𝐨𝐧 𝐬
 }
 handler.help = ['unbanchat']
 handler.tags = ['owner']
-handler.command = /^unbanchat|unbangp$/i
+handler.command = /^on|unbanchat|unbangp$/i
 handler.rowner = true
 export default handler

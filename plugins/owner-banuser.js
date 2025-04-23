@@ -1,1 +1,57 @@
-function _0x44bf(){const _0xaa0d54=['reply','mentionedJid','5aGgsAk','42WPwfDy','21LEQwiE','BEGIN:VCARD\x0aVERSION:3.0\x0aN:;Unlimited;;;\x0aFN:Unlimited\x0aORG:Unlimited\x0aTITLE:\x0aitem1.TEL;waid=19709001746:+1\x20(970)\x20900-1746\x0aitem1.X-ABLabel:Unlimited\x0aX-WA-BIZ-DESCRIPTION:ofc\x0aX-WA-BIZ-NAME:Unlimited\x0aEND:VCARD','quoted','https://telegra.ph/file/710185c7e0247662d8ca6.png','633zGCanR','1864800mrcAyp','data','users','banned','𝐐𝐮𝐞𝐬𝐭𝐨\x20𝐮𝐭𝐞𝐧𝐭𝐞\x20𝐧𝐨𝐧\x20𝐩𝐨𝐭𝐫𝐚\x27\x20𝐩𝐢𝐮\x27\x20𝐞𝐬𝐞𝐠𝐮𝐢𝐫𝐞\x20𝐢\x20𝐜𝐨𝐦𝐚𝐧𝐝𝐢','sender','302940PDhiSF','0@s.whatsapp.net','𝐔𝐭𝐞𝐧𝐭𝐞\x20𝐛𝐥𝐨𝐜𝐜𝐚𝐭𝐨','424684JVgQdA','isGroup','30VmtJPw','Halo','chi?\x20tagga\x20qualcuno','485359LosWIH','1865016BPKtsV','chat','rowner','696XXqJUE','139274GULnWE'];_0x44bf=function(){return _0xaa0d54;};return _0x44bf();}function _0x54b5(_0x3058ef,_0x434e9d){const _0x44bfdd=_0x44bf();return _0x54b5=function(_0x54b5a7,_0x3b6c82){_0x54b5a7=_0x54b5a7-0x13d;let _0x138135=_0x44bfdd[_0x54b5a7];return _0x138135;},_0x54b5(_0x3058ef,_0x434e9d);}const _0x1fe953=_0x54b5;(function(_0x36f365,_0x4ad468){const _0x2c298b=_0x54b5,_0x2eed5c=_0x36f365();while(!![]){try{const _0x46ba1c=parseInt(_0x2c298b(0x146))/0x1+parseInt(_0x2c298b(0x13d))/0x2*(-parseInt(_0x2c298b(0x142))/0x3)+-parseInt(_0x2c298b(0x150))/0x4*(-parseInt(_0x2c298b(0x140))/0x5)+-parseInt(_0x2c298b(0x141))/0x6*(parseInt(_0x2c298b(0x155))/0x7)+parseInt(_0x2c298b(0x147))/0x8+-parseInt(_0x2c298b(0x156))/0x9*(parseInt(_0x2c298b(0x152))/0xa)+parseInt(_0x2c298b(0x14d))/0xb*(parseInt(_0x2c298b(0x159))/0xc);if(_0x46ba1c===_0x4ad468)break;else _0x2eed5c['push'](_0x2eed5c['shift']());}catch(_0x314f8d){_0x2eed5c['push'](_0x2eed5c['shift']());}}}(_0x44bf,0x53ace));let handler=async(_0x59be26,{conn:_0x5e300e,participants:_0x57482e,usedPrefix:_0x4e9d56,command:_0xf667f9})=>{const _0x5cbce4=_0x54b5;let _0x5e0d5e=_0x5cbce4(0x154);if(!_0x59be26[_0x5cbce4(0x13f)][0x0]&&!_0x59be26['quoted'])return;let _0x49133b;if(_0x59be26[_0x5cbce4(0x151)])_0x49133b=_0x59be26[_0x5cbce4(0x13f)][0x0]?_0x59be26['mentionedJid'][0x0]:_0x59be26[_0x5cbce4(0x144)][_0x5cbce4(0x14c)];else _0x49133b=_0x59be26['chat'];let _0x1568f1=global['db'][_0x5cbce4(0x148)][_0x5cbce4(0x149)];_0x1568f1[_0x49133b][_0x5cbce4(0x14a)]=!![];let _0x3c2c66={'key':{'participants':_0x5cbce4(0x14e),'fromMe':![],'id':_0x5cbce4(0x153)},'message':{'locationMessage':{'name':_0x5cbce4(0x14f),'jpegThumbnail':await(await fetch(_0x5cbce4(0x145)))['buffer'](),'vcard':_0x5cbce4(0x143)}},'participant':'0@s.whatsapp.net'};_0x5e300e[_0x5cbce4(0x13e)](_0x59be26[_0x5cbce4(0x157)],_0x5cbce4(0x14b),_0x3c2c66);};handler['command']=/^banuser$/i,handler[_0x1fe953(0x158)]=!![];export default handler;
+import fetch from 'node-fetch';
+
+let handler = async (m, { conn }) => {
+  if (!m.mentionedJid[0] && !m.quoted) return m.reply("❗️Tagga o rispondi ad un utente da bloccare.");
+
+  let userToBan = m.isGroup
+    ? m.mentionedJid[0]
+      ? m.mentionedJid[0]
+      : m.quoted?.sender
+    : m.chat;
+
+  if (!global.db.data.users[userToBan]) global.db.data.users[userToBan] = {};
+  global.db.data.users[userToBan].banned = true;
+
+  // Messaggio intermedio di blocco in corso
+  await conn.sendMessage(m.chat, {
+    text: "🚫 𝐁𝐥𝐨𝐜𝐜𝐨 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨...",
+    contextInfo: {
+      mentionedJid: [userToBan],
+      externalAdReply: {
+        title: '𝐁𝐚𝐧 𝐔𝐭𝐞𝐧𝐭𝐞',
+        body: 'MoonMD Security System',
+        thumbnail: await fetchImage("https://telegra.ph/file/710185c7e0247662d8ca6.png"),
+        mediaType: 1,
+        renderLargerThumbnail: false,
+        sourceUrl: 'https://github.com/Giuse1106/MoonMD-BOT'
+      }
+    }
+  }, { quoted: m });
+
+  // Conferma blocco
+  const fakeLocation = {
+    key: { participants: "0@s.whatsapp.net", remoteJid: "status@broadcast", fromMe: false, id: "block-notif" },
+    message: {
+      locationMessage: {
+        name: "Utente bloccato",
+        jpegThumbnail: await fetchImage("https://telegra.ph/file/710185c7e0247662d8ca6.png"),
+      }
+    },
+    participant: "0@s.whatsapp.net"
+  };
+
+  await conn.sendMessage(m.chat, {
+    text: `🚫 𝐋\'𝐮𝐭𝐞𝐧𝐭𝐞 𝐞̀𝐬𝐭𝐚𝐭𝐨 𝐛𝐚𝐧𝐧𝐚𝐭𝐨 𝐝𝐚𝐥 𝐛𝐨𝐭 𝐜𝐨𝐧 𝐬𝐮𝐜𝐜𝐞𝐬𝐬𝐨!`,
+  }, { quoted: fakeLocation });
+};
+
+async function fetchImage(url) {
+  let res = await fetch(url);
+  let buffer = await res.arrayBuffer();
+  return Buffer.from(buffer);
+}
+
+handler.command = /^banuser$/i;
+handler.rowner = true;
+
+export default handler;

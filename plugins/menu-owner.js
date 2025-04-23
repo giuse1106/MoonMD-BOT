@@ -1,90 +1,89 @@
-import { performance } from 'perf_hooks';
-import fetch from 'node-fetch'; // Assicurati di avere node-fetch installato
+import fs from 'fs';
 
-const handler = async (message, { conn, usedPrefix }) => {
-    const userCount = Object.keys(global.db.data.users).length;
-    const botName = global.db.data.nomedelbot || 'ChatUnity';
-
-    const menuText = generateMenuText(usedPrefix, botName, userCount);
-    
-    const messageOptions = {
-        contextInfo: {
-            forwardingScore: 1,
-            isForwarded: true,
-            forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363259442839354@newsletter',
-                serverMessageId: '',
-                newsletterName: `${botName}`
+let handler = async (m, { conn, usedPrefix }) => {
+    try {
+        // 📍 Embed con vCard
+        let locationEmbed = {
+            key: {
+                participants: "0@s.whatsapp.net",
+                fromMe: false,
+                id: "Halo"
             },
-        }
-    };
+            message: {
+                locationMessage: {
+                    name: "𝐌𝐞𝐧𝐮 𝐎𝐰𝐧𝐞𝐫",
+                    vcard: `BEGIN:VCARD
+VERSION:3.0
+N:;Unlimited;;;
+FN:Unlimited
+ORG:Unlimited
+TITLE:
+item1.TEL;waid=19709001746:+1 (970) 900-1746
+item1.X-ABLabel:Unlimited
+X-WA-BIZ-DESCRIPTION:ofc
+X-WA-BIZ-NAME:Unlimited
+END:VCARD`
+                }
+            },
+            participant: "0@s.whatsapp.net"
+        };
 
-    // Invia la foto con il menu
-    const imagePath = './menu/chatunitybot.jpeg';
-    await conn.sendMessage(message.chat, { image: { url: imagePath }, caption: menuText, ...messageOptions }, { quoted: message });
+        // 📝 Messaggio formattato con categorie
+        let menuText = `
+╭━〔 *📜 𝐌𝐄𝐍𝐔 𝐎𝐖𝐍𝐄𝐑 📜* 〕━╮
+
+> ⚙️ *Gestione Gruppi*  
+➤ ${usedPrefix}setgruppi  
+➤ ${usedPrefix}aggiungiGruppi @  
+➤ ${usedPrefix}resettaGruppi @  
+
+> 🔧 *Gestione Utenti*  
+➤ ${usedPrefix}banuser @  
+➤ ${usedPrefix}unbanuser @  
+➤ ${usedPrefix}blockuser @  
+➤ ${usedPrefix}unblockuser @  
+
+> 🧹 *Puliscia & Impostazioni*  
+➤ ${usedPrefix}pulisci (+)  
+➤ ${usedPrefix}resetprefisso  
+➤ ${usedPrefix}prefisso (?)  
+
+> 💡 *Altro*  
+➤ ${usedPrefix}getfile  
+➤ ${usedPrefix}salva (plugin)  
+➤ ${usedPrefix}dp (plugin)  
+
+╰━━━━━━━━━━━━━━━╯
+`.trim();
+
+        let botName = global.db.data.nomedelbot || "🕸 ׅ꯱℘ꪱׁׁׁׅׅׅժׁׅ݊ꫀׁׅܻ݊ꭈׁׅ֮ϐׁᨵׁׅׅtׁׅ 🕷️";
+
+        // ✉️ Invio del menu con categorie ben separate
+        conn.sendMessage(m.chat, {
+            text: menuText,
+            contextInfo: {
+                mentionedJid: conn.parseMention(menuText),
+                forwardingScore: 1,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: "120363378147644537@newsletter",
+                    serverMessageId: '',
+                    newsletterName: botName
+                }
+            }
+        }, {
+            quoted: locationEmbed
+        });
+
+    } catch (error) {
+        console.error("Errore nel menu owner:", error);
+        conn.reply(m.chat, "❌ Errore durante la generazione del menu Owner!", m);
+    }
 };
 
-async function fetchThumbnail(url) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const arrayBuffer = await response.arrayBuffer();
-        return new Uint8Array(arrayBuffer);
-    } catch (error) {
-        console.error('Errore durante il fetch della thumbnail:', error);
-        return 'default-thumbnail'; // Fallback thumbnail in caso di errore
-    }
-}
-
-handler.help = ['menu'];
+// 📌 Configurazione del comando
+handler.help = ["menu"];
 handler.tags = ['menu'];
-handler.command = /^(menuowner|owner)$/i;
+handler.command = /^(owner|menuowner|pannello)$/i;
 
 export default handler;
-
-function generateMenuText(prefix, botName, userCount) {
-    return `
-╭━〔 *💬 𝑴𝑬𝑵𝑼 𝑶𝑾𝑵𝑬𝑹 💬* 〕━┈⊷
-┃◈╭─────────────·๏
-┃◈┃• *𝑪𝑶𝑴𝑨𝑵𝑫𝑰 𝑹𝑰𝑺𝑬𝑹𝑽𝑨𝑻𝑰 𝑨𝑳𝑳'𝑶𝑾𝑵𝑬𝑹*
-┃◈┃
-┃◈┃• ⚙️ *${prefix}impostanome*
-┃◈┃• ⚙️ *${prefix}resetnome*
-┃◈┃• ⚙️ *${prefix}gestisci* @
-┃◈┃• ⚙️ *${prefix}setgruppi*
-┃◈┃• ⚙️ *${prefix}aggiungigruppi* @
-┃◈┃• ⚙️ *${prefix}resetgruppi* @
-┃◈┃• ⚙️ *${prefix}setpp* (immagine)
-┃◈┃• ⚙️ *${prefix}banuser* @
-┃◈┃• ⚙️ *${prefix}unbanuser* @
-┃◈┃• ⚙️ *${prefix}blockuser* @
-┃◈┃• ⚙️ *${prefix}unblockuser* @
-┃◈┃• ⚙️ *${prefix}pulizia* (+)
-┃◈┃• ⚙️ *${prefix}getfile*
-┃◈┃• ⚙️ *${prefix}salva* (plugin)
-┃◈┃• ⚙️ *${prefix}dp* (plugin)
-┃◈┃• ⚙️ *${prefix}getplugin*
-┃◈┃• ⚙️ *${prefix}join* + link
-┃◈┃• ⚙️ *${prefix}out*
-┃◈┃• ⚙️ *${prefix}prefisso* (?)
-┃◈┃• ⚙️ *${prefix}resetprefisso*
-┃◈┃• ⚙️ *${prefix}godmode* {autoadmin}
-┃◈┃• ⚙️ *${prefix}azzera* @
-┃◈┃• ⚙️ *${prefix}aggiungi* (num. messaggi) @
-┃◈┃• ⚙️ *${prefix}rimuovi* (num. messaggi) @
-┃◈┃• ⚙️ *${prefix}everygroup* (comando)
-┃◈┃• ⚙️ *${prefix}banchat* (gruppo)
-┃◈┃• ⚙️ *${prefix}unbanchat* (gruppo)
-┃◈┃• ⚙️ *${prefix}riavvia*
-┃◈┃• ⚙️ *${prefix}spegnibot*
-┃◈┃• ⚙️ *${prefix}aggiornabot*
-┃◈┃
-┃◈└───────────┈⊷
-╰━━━━━━━━━━━━━┈·๏
-*•────────────•⟢*
-> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ${botName}
-*•────────────•⟢*
-`.trim();
-}

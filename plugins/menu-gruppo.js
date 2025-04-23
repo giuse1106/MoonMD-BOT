@@ -1,182 +1,102 @@
-import { performance } from 'perf_hooks';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'fs';
 
-// Definizione di __dirname per i moduli ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const handler = async (message, { conn, usedPrefix }) => {
-    const userCount = Object.keys(global.db.data.users).length;
-    const botName = global.db.data.nomedelbot || 'ChatUnity';
-
-    const menuText = generateMenuText(usedPrefix, botName, userCount);
-
-    // Percorso dell'immagine
-    const imagePath = path.join(__dirname, '../menu/menu.gruppo.jpeg');
-
-    const messageOptions = {
-        contextInfo: {
-            forwardingScore: 1,
-            isForwarded: true,
-            forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363259442839354@newsletter',
-                serverMessageId: '',
-                newsletterName: `${botName}`
+let handler = async (m, { conn, usedPrefix }) => {
+    try {
+        // 📍 Embed con vCard
+        let locationEmbed = {
+            key: {
+                participants: "0@s.whatsapp.net",
+                fromMe: false,
+                id: "Halo"
             },
-        }
-    };
+            message: {
+                locationMessage: {
+                    name: "𝐌𝐞𝐧𝐮 𝐆𝐫𝐮𝐩𝐩𝐨",
+                    vcard: `BEGIN:VCARD
+VERSION:3.0
+N:;Unlimited;;;
+FN:Unlimited
+ORG:Unlimited
+TITLE:
+item1.TEL;waid=19709001746:+1 (970) 900-1746
+item1.X-ABLabel:Unlimited
+X-WA-BIZ-DESCRIPTION:ofc
+X-WA-BIZ-NAME:Unlimited
+END:VCARD`
+                }
+            },
+            participant: "0@s.whatsapp.net"
+        };
 
-    // Invia l'immagine con il menu
-    await conn.sendMessage(
-        message.chat,
-        { image: { url: imagePath }, caption: menuText, ...messageOptions },
-        { quoted: message }
-    );
+        // 📝 Messaggio formattato con categorie
+        let menuText = `
+╭━〔 *📜 𝐌𝐄𝐍𝐔 𝐆𝐑𝐔𝐏𝐏𝐎 📜* 〕━╮
+
+> 🎵 *Musica & Media*  
+➤ ${usedPrefix}play (canzone + artista)  
+➤ ${usedPrefix}video (canzone + artista)  
+➤ ${usedPrefix}shazam (audio)  
+
+> 🌍 *Utilità*  
+➤ ${usedPrefix}meteo (città)  
+➤ ${usedPrefix}hd (foto)  
+➤ ${usedPrefix}leggi (foto)  
+➤ ${usedPrefix}rimuovisfondo (foto)  
+➤ ${usedPrefix}msg / attività @utente  
+
+> ⚙️ *Impostazioni & Strumenti*  
+➤ ${usedPrefix}setig  
+➤ ${usedPrefix}delig  
+➤ ${usedPrefix}trivia  
+➤ ${usedPrefix}calcola (1+1)  
+
+> 🍔 *Cucina*  
+➤ ${usedPrefix}carbonara  
+➤ ${usedPrefix}hamburger  
+➤ ${usedPrefix}pizzamargherita  
+➤ ${usedPrefix}pizzadiavola  
+
+> 📊 *Statistiche & Divertimento*  
+➤ ${usedPrefix}info  
+➤ ${usedPrefix}riscrivi  
+➤ ${usedPrefix}contaparole  
+➤ ${usedPrefix}tovideo  
+➤ ${usedPrefix}togif  
+➤ ${usedPrefix}gay  
+➤ ${usedPrefix}top  
+➤ ${usedPrefix}lesbica  
+
+╰━━━━━━━━━━━━━━━╯
+`.trim();
+
+        let botName = global.db.data.nomedelbot || "🕸 ׅ꯱℘ꪱׁׁׁׅׅׅժׁׅ݊ꫀׁׅܻ݊ꭈׁׅ֮ϐׁᨵׁׅׅtׁׅ 🕷️";
+
+        // ✉️ Invio del menu con categorie ben separate
+        conn.sendMessage(m.chat, {
+            text: menuText,
+            contextInfo: {
+                mentionedJid: conn.parseMention(menuText),
+                forwardingScore: 1,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: "120363378147644537@newsletter",
+                    serverMessageId: '',
+                    newsletterName: botName
+                }
+            }
+        }, {
+            quoted: locationEmbed
+        });
+
+    } catch (error) {
+        console.error("Errore nel menu gruppo:", error);
+        conn.reply(m.chat, "❌ Errore durante la generazione del menu gruppo!", m);
+    }
 };
 
-async function fetchProfilePictureUrl(conn, sender) {
-    try {
-        return await conn.profilePictureUrl(sender);
-    } catch (error) {
-        return 'default-profile-picture-url'; // Fallback URL in caso di errore
-    }
-}
-
-handler.help = ['menugruppo'];
-handler.tags = ['menugruppo'];
-handler.command = /^(gruppo|menugruppo)$/i;
+// 📌 Configurazione del comando
+handler.help = ["menu"];
+handler.tags = ['menu'];
+handler.command = /^(menugruppo|gruppo)$/i;
 
 export default handler;
-
-function generateMenuText(prefix, botName, userCount) {
-    return `
-╭━〔 *⚡𝑴𝑬𝑵𝑼 𝐆𝐑𝐔𝐏𝐏𝐎⚡* 〕━┈⊷
-┃◈╭━━━━━━━━━━━━━·๏
-┃◈┃• *𝑪𝑶𝑴𝑨𝑵𝑫𝑰 𝐏𝐄𝐑 𝐈 𝐌𝐄𝐌𝐁𝐑𝐈*
-┃◈╰━━━━━━━━━━━━┈⊷
-┃◈
-┃◈╭─✦ MUSICA & AUDIO ✦═╗
-┃◈┃• 🎵 *${prefix}play* (canzone)
-┃◈┃• 🎥 *${prefix}video* (canzone) 
-┃◈┃• 🔊 *${prefix}ytmp4* (in arrivo)
-┃◈┃• 🎶 *${prefix}shazam* (audio) 
-┃◈┃• 🔊 *${prefix}tomp3* (video)
-┃◈╰━━━━━━━━━━━━┈⊷
-┃◈
-┃◈╭✦ INFORMAZIONI & UTILITÀ ✦╗
-┃◈┃• 🤖 *${prefix}ia*
-┃◈┃• 🤖 *${prefix}Alya*
-┃◈┃• 🌍 *${prefix}meteo* (città)
-┃◈┃• 🕒 *${prefix}orario* (città)
-┃◈┃• 🌐 *${prefix}traduci* (testo)
-┃◈┃• 📊 *${prefix}contaparole* (testo)
-┃◈┃• 🆔 *${prefix}id* (gruppo)
-┃◈┃• 💻 *${prefix}gitclone* (repo)
-┃◈┃• ℹ️ *${prefix}info* [@]
-┃◈┃• 📸 *${prefix}setig* [@]
-┃◈┃• 📝 *${prefix}msg* [@]
-┃◈┃• ❓ *${prefix}script* 
-┃◈┃• 📜 *${prefix}regole* (regole gruppo)
-┃◈┃• 📜 *${prefix}dashboard* 
-┃◈┃• 🔍 *${prefix}cercaporno*
-┃◈┃• 🎼 *${prefix}fyadd* 
-┃◈┃• 📚 *${prefix}wikipedia* (argomento)
-┃◈╰━━━━━━━━━━━━┈⊷
-┃◈
-┃◈╭✦ IMMAGINI & MODIFICA ✦╗
-┃◈┃• 📷 *${prefix}hd* (foto)
-┃◈┃• 🖼️ *${prefix}rimuovisfondo* (foto)
-┃◈┃• 🔍 *${prefix}rivela* (foto)
-┃◈┃• 🖼️ *${prefix}toimg* (sticker)
-┃◈┃• 📖 *${prefix}leggi* (foto)
-┃◈┃• 🌀 *${prefix}blur* (foto)
-┃◈┃• 🖼️ *${prefix}pinterest* (in arrivo)
-┃◈┃• 🎴 *${prefix}hornycard* [@utente]
-┃◈┃• 🧠 *${prefix}stupido/a* @
-┃◈╰━━━━━━━━━━━━┈⊷
-┃◈
-┃◈╭─✦ GANG SYSTEM ✦═╗
-┃◈┃• 🥷🏻 *${prefix}creagang* 
-┃◈┃• 🔪 *${prefix}infogang*  
-┃◈┃• ⛓ *${prefix}abbandonagang* 
-┃◈┃• 🩸 *${prefix}invitogang* @
-┃◈┃• 🎧 *${prefix}caccialogang* @
-┃◈╰━━━━━━━━━━━━┈⊷
-┃◈
-┃◈╭─✦ GIOCHI & CASINÒ ✦╗
-┃◈┃• 🎮 *${prefix}tris* 
-┃◈┃• 🎲 *${prefix}dado* 
-┃◈┃• 🎰 *${prefix}slot* 
-┃◈┃• 🃏 *${prefix}casinò* 
-┃◈┃• 💰 *${prefix}scommessa* (quantità)
-┃◈┃• 🔫 *${prefix}roulette* 
-┃◈┃• 🪙 *${prefix}moneta* 
-┃◈┃• 🧮 *${prefix}mate* 
-┃◈┃• 📈 *${prefix}scf* 
-┃◈╰━━━━━━━━━━━━┈⊷
-┃◈
-┃◈╭✦ ECONOMIA & CLASSIFICHE ✦╗
-┃◈┃• 💳 *${prefix}portafoglio* 
-┃◈┃• 💸 *${prefix}daily* → Ricompensa
-┃◈┃• 🏆 *${prefix}classifica* UC 
-┃◈┃• 💳 *${prefix}dona* → (tot) @
-┃◈┃• 🛒 *${prefix}compra* → Acquista UC
-┃◈┃• 🤑 *${prefix}ruba* @ 
-┃◈╰━━━━━━━━━━━━┈⊷
-┃◈
-┃◈╭✦ SOCIAL & INTERAZIONI ✦╗
-┃◈┃• 💍 *${prefix}sposami*  
-┃◈┃• 😡 *${prefix}odio* @
-┃◈┃• 💌 *${prefix}amore* @
-┃◈┃• 💋 *${prefix}ditalino* @
-┃◈┃• 💋 *${prefix}sega* @
-┃◈┃• 💋 *${prefix}bacia* @
-┃◈┃• 💋 *${prefix}scopa* @
-┃◈┃• 🖕 *${prefix}insulta* @
-┃◈┃• 🔥 *${prefix}zizzania* @
-┃◈┃• 💍 *${prefix}sposa* @
-┃◈┃• 💔 *${prefix}divorzia* @
-┃◈┃• 👥 *${prefix}amicizia/listamici* @
-┃◈┃• 🗣️ *${prefix}rizz* → @
-┃◈╰━━━━━━━━━━━━┈⊷
-┃◈
-┃◈╭✦ QUANTO È?  ✦╗
-┃◈┃• 🏳‍🌈 *${prefix}gay*
-┃◈┃• 🏳‍🌈 *${prefix}lesbica* @
-┃◈┃• ♿ *${prefix}ritardato/a* @
-┃◈┃• ♿ *${prefix}down* @
-┃◈┃• ♿ *${prefix}disabile* @
-┃◈┃• ♿ *${prefix}mongoloide* @
-┃◈┃• ⚫ *${prefix}negro* @
-┃◈╰━━━━━━━━━━━━┈⊷
-┃◈
-┃◈╭✦ TEST & PERSONALITÀ ✦╗
-┃◈┃• 🍺 *${prefix}alcolizzato* 
-┃◈┃• 🌿 *${prefix}drogato*  
-┃◈┃• 🍑 *${prefix}figa* 
-┃◈┃• 🍑 *${prefix}ano*
-┃◈┃• 🎭 *${prefix}personalita* 
-┃◈┃• 🔮 *${prefix}zodiaco* 
-┃◈┃• 🏹 *${prefix}nomeninja* 
-┃◈┃• 😈 *${prefix}infame* 
-┃◈┃• 🙏 *${prefix}topbestemmie* 
-┃◈╰━━━━━━━━━━━━┈⊷
-┃◈
-┃◈╭✦ STICKERS & MEDIA ✦╗
-┃◈┃• 🛠️ *${prefix}sticker* (foto)
-┃◈┃• 🖼️ *${prefix}png* (sticker)
-┃◈┃• 🤕 *${prefix}bonk* 
-┃◈┃• 👑 *${prefix}autoadmin* 
-┃◈┃• 🚫 *${prefix}obbligo* → V o obb?
-┃◈╰━━━━━━━━━━━━┈⊷
-┃◈┃• *𝑽𝑬𝑹𝑺𝑰𝑶𝑵𝑬:* ${vs}
-┃◈┃• *𝑫𝑬𝑽𝑬𝑳𝑶𝑷𝑬𝑹:* ChatUnity
-┃◈┃• *𝐒𝐔𝐏𝐏𝐎𝐑𝐓𝐎:* (.supporto)
-┃◈└──────────┈⊷
-╰━━━━━━━━━━━━━┈⊷
-*•────────────•⟢*
-> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ${botName}
-*•────────────•⟢*
-  `;
-}

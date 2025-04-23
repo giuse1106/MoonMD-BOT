@@ -10,12 +10,14 @@ let handler = async (m, { conn, isPrems }) => {
     return conn.reply(m.chat, `⏳ Aspetta *${remainingTime}* prima di lavorare di nuovo.`, m)
   }
 
-  // Genera ricompensa casuale
+  // Genera ricompensa casuale (XP tra 0 e 5000)
   let reward = Math.floor(Math.random() * 5000)
   cooldowns[m.sender] = Date.now()
   
-  // Assegna XP e invia messaggio
+  // Assegna XP al giocatore
   user.exp += reward
+  
+  // Invia il messaggio con la ricompensa
   await conn.reply(m.chat, `💼 ${pickRandom(jobs)} *${formatNumber(reward)}* ( *${reward}* ) XP 💫`, m)
 }
 
@@ -79,5 +81,4 @@ handler.help = ['lavora']
 handler.tags = ['rpg']
 handler.command = ['lavora', 'work', 'w']
 
-// Esporta il modulo utilizzando la sintassi ES Module
 export default handler

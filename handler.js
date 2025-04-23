@@ -6,7 +6,6 @@ import path, { join } from 'path'
 import { unwatchFile, watchFile } from 'fs'
 import fs from 'fs'
 import chalk from 'chalk'
-
 /**
  * @type {import('@whiskeysockets/baileys')}
  */
@@ -534,47 +533,8 @@ export async function participantsUpdate({ id, participants, action }) {
                 } 
             }
             break
-        case 'promote':
-        case 'daradmin':
-        case 'promuovi':
-        case 'demote':
-        case 'quitarpoder':
-        case 'retrocedi':
-            if (chat.welcome) {
-                let groupMetadata = await this.groupMetadata(id) || (conn.chats[id] || {}).metadata
-                for (let user of participants) {
-                    let pp = fs.readFileSync('./src/profilo.png')
-                    try {
-                        pp = await this.profilePictureUrl(user, 'image')
-                    } catch (e) {
-                    } finally {
-                        let nomeDelBot = global.db.data.nomedelbot || `𝐂𝐡𝐚𝐭𝐔𝐧𝐢𝐭𝐲-𝐁𝐨𝐭`
-                        let apii = await this.getFile(pp)
-                        text = (action === 'promote' ? (chat.sPromote || this.spromote || conn.spromote || '@user ```è ora admin```') :
-                            (chat.sDemote || this.sdemote || conn.sdemote || '@user ```non è più admin```')).replace('@user', '@' + user.split('@')[0])
-                        this.sendMessage(id, { 
-                            text: text, 
-                            contextInfo:{ 
-                                mentionedJid:[user],
-                                forwardingScore: 99,
-                                isForwarded: true, 
-                               forwardedNewsletterMessageInfo: {
-                               newsletterJid: '120363259442839354@newsletter',
-                               serverMessageId: '', newsletterName: `${nomeDelBot}` },
-                               externalAdReply: {
-                                    "title": `${action === 'promote' ? '𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨 𝐝𝐢 𝐩𝐫𝐨𝐦𝐨𝐳𝐢𝐨𝐧𝐞 👑' : '𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨 𝐝𝐢 𝐫𝐞𝐭𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐨𝐧𝐞 🙇🏻‍♂️'}`,
-                                    "previewType": "PHOTO", 
-                                    "thumbnailUrl": ``, 
-                                    "thumbnail": apii.data,
-                                    "mediaType": 1
-                                }
-                            }
-                        }) 
-                    } 
-                } 
-            }
-            break
-    }
+     
+}
 }
 
 /**
@@ -603,7 +563,19 @@ export async function callUpdate(callUpdate) {
     if (nk.status == "offer") {
     let callmsg = await this.reply(nk.from, `ciao @${nk.from.split('@')[0]}, c'è anticall.`, false, { mentions: [nk.from] })
     //let data = global.owner.filter(([id, isCreator]) => id && isCreator)
-    let vcard = `BEGIN:VCARD\nVERSION:3.0\nN:;𝐂𝐡𝐚𝐭𝐔𝐧𝐢𝐭𝐲;;;\nFN:𝐂𝐡𝐚𝐭𝐔𝐧𝐢𝐭𝐲\nORG:𝐂𝐡𝐚𝐭𝐔𝐧𝐢𝐭𝐲\nTITLE:\nitem1.TEL;waid=8619858371809:+86 19858371809\nitem1.X-ABLabel:𝐂𝐡𝐚𝐭𝐔𝐧𝐢𝐭𝐲\nX-WA-BIZ-DESCRIPTION:ofc\nX-WA-BIZ-NAME:𝐂𝐡𝐚𝐭𝐔𝐧𝐢𝐭𝐲\nEND:VCARD`
+    let vcard = `BEGIN:VCARD
+VERSION:3.0
+N:;ᘜ|ㄩ丂乇ᵒʷⁿᵉʳ;;;
+FN:ᘜ|ㄩ丂乇ᵒʷⁿᵉʳ
+ORG:ᘜ|ㄩ丂乇ᵒʷⁿᵉʳ
+TITLE:
+item1.TEL;waid=393445461546:+39 344 546 1546
+item1.X-ABLabel:ᘜ|ㄩ丂乇ᵒʷⁿᵉʳ
+X-WA-BIZ-DESCRIPTION:ofc
+X-WA-BIZ-NAME:ᘜ|ㄩ丂乇ᵒʷⁿᵉʳ
+END:VCARD`;
+
+console.log(vcard);
     await this.sendMessage(nk.from, { contacts: { displayName: 'Unlimited', contacts: [{ vcard }] }}, {quoted: callmsg})
     await this.updateBlockStatus(nk.from, 'block')
     }
@@ -654,7 +626,7 @@ global.dfail = (type, m, conn) => {
   "previewType": "PHOTO",
   "thumbnail": fs.readFileSync('./accessdenied2.png'),
   "mediaType": 1,
-  "renderLargerThumbnail": true}}}, {quoted: m})
+  "renderLargerThumbnail": false}}}, {quoted: m})
 }
 let file = global.__filename(import.meta.url, true)
 watchFile(file, async () => {
@@ -662,3 +634,4 @@ watchFile(file, async () => {
     console.log(chalk.redBright("Update 'handler.js'"))
     if (global.reloadHandler) console.log(await global.reloadHandler())
 })
+

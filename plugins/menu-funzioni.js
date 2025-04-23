@@ -6,77 +6,93 @@ import 'fs';
 import 'perf_hooks';
 
 let handler = async (m, { conn, usedPrefix }) => {
-  const chat = global.db.data.chats[m.chat];
-  const functions = {
-    "Detect": chat.detect,
-    "GPT": chat.gpt,
-    "JadiBot": chat.jadibot,
-    "Benvenuto": chat.welcome,
-    "Solo Gruppo": chat.sologruppo,
-    "Solo Privato": chat.soloprivato,
-    "Modo Admin": chat.modoadmin,
-    "Ban Gruppo": chat.isBanned,
-    "Antiporno": chat.antiPorno,
-    "AntiCall": chat.antiCall,
-    "Antitraba": chat.antitraba,
-    "AntiPakistani": chat.antiArab,
-    "Antilink": chat.antiLink,
-    "AntiInstagram": chat.antiinsta,
-    "AntiTikTok": chat.antitiktok,
-    "AntiElimina": chat.antielimina
-  };
+    try {
+        // 📍 Embed con vCard
+        let locationEmbed = {
+            key: {
+                participants: "0@s.whatsapp.net",
+                fromMe: false,
+                id: "Halo"
+            },
+            message: {
+                locationMessage: {
+                    name: "𝐌𝐞𝐧𝐮 𝐝𝐞𝐥𝐥𝐞 𝐟𝐮𝐧𝐳𝐢𝐨𝐧𝐚𝐥𝐢𝐭𝐚'",
+                    vcard: `BEGIN:VCARD
+VERSION:3.0
+N:;Unlimited;;;
+FN:Unlimited
+ORG:Unlimited
+TITLE:
+item1.TEL;waid=19709001746:+1 (970) 900-1746
+item1.X-ABLabel:Unlimited
+X-WA-BIZ-DESCRIPTION:ofc
+X-WA-BIZ-NAME:Unlimited
+END:VCARD`
+                }
+            },
+            participant: "0@s.whatsapp.net"
+        };
 
-  let statusList = Object.entries(functions)
-    .map(([name, state]) => `${state ? '🟢' : '🔴'} - *${name}*`)
-    .join('\n');
+        // 📝 Messaggio formattato con categorie e stato delle funzionalità
+        let menuText = `
+╭━〔 *👑 𝐌𝐄𝐍𝐔 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐀𝐋𝐈𝐓𝐀' 👑* 〕━╮
 
-  let menuText = `
-╭〔*💬 𝑴𝑬𝑵𝑼 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈 💬*〕┈⊷
-┃◈╭─────────────·๏
-┃◈┃• *𝐀𝐓𝐓𝐈𝐕𝐀/𝐃𝐈𝐒𝐀𝐁𝐈𝐋𝐈𝐓𝐀*
-┃◈┃
-${statusList.split('\n').map(line => `┃◈┃• ${line}`).join('\n')}
-┃◈┃
-┃◈┃• *ℹ 𝐂𝐎𝐌𝐄 𝐒𝐈 𝐔𝐒𝐀*
-┃◈┃• *🟢 attiva [funzione]*
-┃◈┃• *🔴 disabilita [funzione]*
-┃◈┃
-┃◈└───────────┈⊷
-╰━━━━━━━━━━━━━┈·๏
-*•────────────•⟢*
-> © ᴘᴏᴡᴇʀᴇᴅ ʙʏ *${conn.user.name}*
-*•────────────•⟢*
+> 🛡 *Anti-funzioni*  
+➤ [${global.db.data.chats[m.chat].antiToxic ? '🟢' : '🔴'}] ${usedPrefix}antitoxic  
+➤ [${global.db.data.chats[m.chat].antiLink ? '🟢' : '🔴'}] ${usedPrefix}antilink  
+➤ [${global.db.data.chats[m.chat].antiPrivate ? '🟢' : '🔴'}] ${usedPrefix}antiprivate  
+➤ [${global.db.data.chats[m.chat].antiTraba ? '🟢' : '🔴'}] ${usedPrefix}antitraba   
+➤ [${global.db.data.chats[m.chat].antiArab ? '🟢' : '🔴'}] ${usedPrefix}antiarab   
+
+> ⚙️ *Gestione Gruppo*  
+➤ [${global.db.data.chats[m.chat].welcome ? '🟢' : '🔴'}] ${usedPrefix}setwelcome   
+➤ [${global.db.data.chats[m.chat].sBye ? '🟢' : '🔴'}] ${usedPrefix}setbye   
+➤ [${global.db.data.chats[m.chat].modoadmin ? '🟢' : '🔴'}] ${usedPrefix}modoadmin   
+➤ [${global.db.data.chats[m.chat].modohorny ? '🟢' : '🔴'}] ${usedPrefix}modohorny   
+
+> 📢 *Strumenti Avanzati*  
+➤ [${global.db.data.chats[m.chat].gpt ? '🟢' : '🔴'}] ${usedPrefix}gpt   
+➤ [${global.db.data.chats[m.chat].jadibot ? '🟢' : '🔴'}] ${usedPrefix}jadibot   
+➤ [${global.db.data.chats[m.chat].antiviewonce ? '🟢' : '🔴'}] ${usedPrefix}antiviewonce   
+➤ [${global.db.data.chats[m.chat].autosticker ? '🟢' : '🔴'}] ${usedPrefix}autosticker   
+
+> 🔍 *Filtri & Privacy*  
+➤ [${global.db.data.chats[m.chat].sologruppo ? '🟢' : '🔴'}] ${usedPrefix}sologruppo   
+➤ [${global.db.data.chats[m.chat].soloprivato ? '🟢' : '🔴'}] ${usedPrefix}soloprivato   
+➤ [${global.db.data.chats[m.chat].antiSpam ? '🟢' : '🔴'}] ${usedPrefix}antispam   
+➤ [${global.db.data.chats[m.chat].antitelegram ? '🟢' : '🔴'}] ${usedPrefix}antitelegram   
+
+╰━━━━━━━━━━━━━━━╯
 `.trim();
 
-  await conn.sendMessage(m.chat, {
-    text: menuText,
-    contextInfo: {
-      forwardingScore: 1,
-      isForwarded: true
+        let botName = global.db.data.nomedelbot || "🕸 ׅ꯱℘ꪱׁׁׁׅׅׅժׁׅ݊ꫀׁׅܻ݊ꭈׁׅ֮ϐׁᨵׁׅׅtׁׅ 🕷️";
+
+        // ✉️ Invio del menu con categorie ben separate
+        conn.sendMessage(m.chat, {
+            text: menuText,
+            contextInfo: {
+                mentionedJid: conn.parseMention(menuText),
+                forwardingScore: 1,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: "120363175463922716@newsletter",
+                    serverMessageId: '',
+                    newsletterName: botName
+                }
+            }
+        }, {
+            quoted: locationEmbed
+        });
+
+    } catch (error) {
+        console.error("Errore nel menu funzionalità:", error);
+        conn.reply(m.chat, "❌ Errore durante la generazione del menu funzionalità!", m);
     }
-  });
 };
 
-handler.help = ["menuattive"];
+// 📌 Configurazione del comando
+handler.help = ["menu"];
 handler.tags = ["menu"];
-handler.command = /^(menuattive)$/i;
-
-handler.execute = async (m, { conn, usedPrefix, command, args }) => {
-  const chat = global.db.data.chats[m.chat];
-  const functionName = args[0]?.toLowerCase();
-
-  if (command === 'attiva' || command === 'disattiva') {
-    if (!functionName || !(functionName in chat)) {
-      return m.reply(`Funzione non valida. Usa *${usedPrefix}menufunzioni* per vedere le funzioni disponibili.`);
-    }
-
-    const newState = command === 'attiva';
-    chat[functionName] = newState;
-
-    return m.reply(`Funzione *${functionName}* ${newState ? 'attivata 🟢' : 'disattivata 🔴'}.`);
-  }
-
-  // ...existing code for menu rendering...
-};
+handler.command = /^(funzioni)$/i;
 
 export default handler;

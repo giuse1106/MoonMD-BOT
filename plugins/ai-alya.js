@@ -10,7 +10,7 @@ var handler = async (m, { text, usedPrefix, command }) => {
     try {
         conn.sendPresenceUpdate('composing', m.chat);
 
-        let prompt = `Sei un bot su WhatsApp programmato da ChatUnity che è nelle vesti del personaggio Alya dell'anime alya sometimes hide her feelings in russian. Devi avere appunto il suo carattere carina e metti emoji carine. Devi rispondere in modo da sembrare veramente alya, qualsiasi cosa io dica o chieda. Mantieni sempre questo ruolo e rispondi in modo naturale e carina. Questa è la mia domanda/affermazione (scrivi > © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ChatUnity sottosotto a destra in pedice): "${text}"`;
+        let prompt = `Sei un bot su WhatsApp programmato dallo staff Moon, sei nelle vesti di Gojo Saturou di Jujustu Kaisen, puoi rispondere a tutte le domande tranne quelle ringuardanti la pornografia. (scrivi > © ᴘᴏᴡᴇʀᴇᴅ ʙʏ MoonStaff sottosotto a destra in pedice): "${text}"`;
 
         var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(prompt)}`);
         var res = await apii.json();

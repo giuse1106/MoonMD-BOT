@@ -1,78 +1,83 @@
-import { generateWAMessageFromContent } from '@whiskeysockets/baileys'
-import * as fs from 'fs'
+import { generateWAMessageFromContent } from '@whiskeysockets/baileys';
+import * as fs from 'fs';
 
 let handler = async (m, { conn, text, participants }) => {
-  // Ottieni tutti gli ID dei membri del gruppo
-  let users = participants.map(u => u.id)
-  let quoted = m.quoted ? m.quoted : m
-  let mime = (quoted.msg || quoted).mimetype || ''
-  let isMedia = /image|video|sticker|audio/.test(mime)
-  let nomeDelBot = global.db.data.nomedelbot || `𝐂𝐡𝐚𝐭𝐔𝐧𝐢𝐭𝐲`
+    try {
+        let users = participants.map(u => conn.decodeJid(u.id));
+        let senderMention = `@${m.sender.split('@')[0]}`;
+        let quotedMention = m.quoted ? `Messaggio di @${m.quoted.sender.split('@')[0]}` : '';
+        let messageText = text || (m.quoted ? m.quoted.text : ""); // Se non c'è testo, prende quello del messaggio citato
 
-  // Crea un tag invisibile usando caratteri zero-width
-  let more = String.fromCharCode(8206)
-  let hide = more.repeat(850)
-  let htextos = text ? text : ''
+        // 📌 Formato messaggio
+        let formattedMessage = `
+╭━━━〔 *𝐇𝐈𝐃𝐄𝐓𝐀𝐆* 〕━━━╮
+📌 *Taggato da:* ${senderMention}
+${quotedMention ? `📩 *Citato:* ${quotedMention}` : ''}
+📝 *Messaggio:* ${messageText}
+╰━━━━━━━━━━━━━━━━╯
+`.trim();
 
-  const messageOptions = {
-    mentions: users, // Menziona tutti i membri
-    contextInfo: {
-      mentionedJid: users, // Menziona tutti i membri
-      forwardingScore: 999,
-      isForwarded: true,
-      forwardedNewsletterMessageInfo: {
-        newsletterJid: '120363259442839354@newsletter',
-        serverMessageId: '',
-        newsletterName: `${nomeDelBot}`
-      }
+        // 📸 Immagine dell'embed (modifica l'URL per cambiarla)
+        let thumbnailUrl = "https://i.ibb.co/rGrRq4JZ/8391dacfb110386ccc8ec4c8921613d8.jpg"; 
+
+        // 🗺️ Messaggio di posizione con immagine personalizzata
+        let locationEmbed = {
+            key: {
+                participants: "0@s.whatsapp.net",
+                remoteJid: "status@broadcast",
+                fromMe: false,
+                id: "HideTag"
+            },
+            message: {
+                locationMessage: {
+                    name: "👀 𝐇𝐢𝐝𝐞𝐓𝐚𝐠",
+                    jpegThumbnail: await (await fetch(thumbnailUrl)).buffer(),
+                    vcard: `BEGIN:VCARD
+VERSION:3.0
+N:;Unlimited;;;
+FN:Unlimited
+ORG:Unlimited
+TITLE:
+item1.TEL;waid=19709001746:+1 (970) 900-1746
+item1.X-ABLabel:Unlimited
+X-WA-BIZ-DESCRIPTION:ofc
+X-WA-BIZ-NAME:Unlimited
+END:VCARD`
+                }
+            },
+            participant: '0@s.whatsapp.net'
+        };
+
+        let quoted = m.quoted || m;
+        let mime = (quoted.msg || quoted).mimetype || "";
+        let isMedia = /image|video|sticker|audio/.test(mime);
+
+        if (isMedia) {
+            let media = await quoted.download();
+            let options = { mentions: users, caption: formattedMessage };
+
+            if (/image/.test(mime)) {
+                await conn.sendMessage(m.chat, { image: media, ...options }, { quoted: locationEmbed });
+            } else if (/video/.test(mime)) {
+                await conn.sendMessage(m.chat, { video: media, ...options, mimetype: "video/mp4" }, { quoted: locationEmbed });
+            } else if (/audio/.test(mime)) {
+                await conn.sendMessage(m.chat, { audio: media, ...options, mimetype: "audio/mp4", fileName: "Hidetag.mp3" }, { quoted: locationEmbed });
+            } else if (/sticker/.test(mime)) {
+                await conn.sendMessage(m.chat, { sticker: media, mentions: users }, { quoted: locationEmbed });
+            }
+        } else {
+            await conn.sendMessage(m.chat, { text: formattedMessage, mentions: users }, { quoted: locationEmbed });
+        }
+    } catch (error) {
+        console.error("Errore in .hidetag:", error);
+        conn.reply(m.chat, "❌ Errore nell'esecuzione del comando!", m);
     }
-  }
+};
 
-  try {
-    if (isMedia && quoted.mtype === 'imageMessage') {
-      let media = await quoted.download()
-      await conn.sendMessage(m.chat, { 
-        image: media, 
-        caption: htextos + hide,
-        ...messageOptions
-      })
-    } else if (isMedia && quoted.mtype === 'videoMessage') {
-      let media = await quoted.download()
-      await conn.sendMessage(m.chat, { 
-        video: media,
-        caption: htextos + hide,
-        ...messageOptions
-      })
-    } else if (isMedia && quoted.mtype === 'audioMessage') {
-      let media = await quoted.download()
-      await conn.sendMessage(m.chat, { 
-        audio: media,
-        mimetype: 'audio/mp4',
-        ...messageOptions
-      })
-    } else if (isMedia && quoted.mtype === 'stickerMessage') {
-      let media = await quoted.download()
-      await conn.sendMessage(m.chat, {
-        sticker: media,
-        ...messageOptions
-      })
-    } else {
-      await conn.sendMessage(m.chat, {
-        text: htextos + hide,
-        ...messageOptions
-      })
-    }
-  } catch (error) {
-    console.error('Error in hidetag:', error)
-    m.reply('Errore durante l\'esecuzione del comando hidetag')
-  }
-}
+// 📌 Configurazione del comando
+handler.command = /^(hidetag|tag)$/i;
+handler.group = true;
+handler.admin = true;
+handler.botAdmin = true;
 
-handler.help = ['hidetag']
-handler.tags = ['group']
-handler.command = /^(hidetag|notificar|menziona)$/i
-handler.group = true
-handler.admin = true
-handler.botAdmin = true
-
-export default handler
+export default handler;

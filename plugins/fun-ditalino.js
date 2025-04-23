@@ -1,55 +1,44 @@
-import { performance } from "perf_hooks";
+import os from 'os';
+import util from 'util';
+import sizeFormatter from 'human-readable';
+import MessageType from '@whiskeysockets/baileys';
+import fs from 'fs';
+import { performance } from 'perf_hooks';
 
-// Funzione per selezionare un elemento casuale da un array
-function pickRandom(array) {
-    return array[Math.floor(Math.random() * array.length)];
+let handler = async (m, { conn, usedPrefix, text }) => {
+let _uptime = process.uptime() * 1300
+let uptime = clockString(_uptime)
+let old = performance.now()
+let neww = performance.now()
+let speed =  (neww - old).toFixed(4)
+  let { key } = await conn.sendMessage(m.chat, { text: `Ora faccio un ditalino a ${text}` }, { quoted: m });
+  const array = [
+    "👋🏼", "🖐🏼", "☝🏼", "✌🏼", "☝🏼", "🖐🏼", "🤟🏼", "🤘🏼", "🤟🏼", "🖐🏼","👋🏼"
+  ];
+
+  for (let item of array) {
+    await conn.sendMessage(m.chat, { text: `${item}`, edit: key }, { quoted: m });
+    await new Promise(resolve => setTimeout(resolve, 20)); // Delay 5 seconds
+  }
+let prova = { "key": {"participants":"0@s.whatsapp.net", "remoteJid": "status@broadcast", "fromMe": false, "id": "Halo"
+}, "message": { 
+"contactMessage": { displayName: '𝐁𝐢𝐱𝐛𝐲 𝐏𝐢𝐧𝐠 𖣘',
+"vcard": `BEGIN:VCARD\nVERSION:3.0\nN:;Unlimited;;;\nFN:Unlimited\nORG:Unlimited\nTITLE:\nitem1.TEL;waid=15395490858:+1 (539) 549-0858\nitem1.X-ABLabel:Unlimited\nX-WA-BIZ-DESCRIPTION:ofc\nX-WA-BIZ-NAME:Unlimited\nEND:VCARD`
+}}, "participant": "0@s.whatsapp.net"
 }
-
-let handler = async (message, { conn, text }) => {
-    // Messaggi personalizzati
-    let message1 = `🤟🏻 Inizio una serie di ditalino per *${text}*...`;
-    let message2 = "👆🏻 Preparati!";
-    let message3 = "✌🏻 Si comincia...";
-    let message4 = "☝🏻 Quasi finito...";
-    let message6 = "👋🏻 Finito?";
-    let message7 = "👋🏻 Ancora un attimo...";
-    let message9 = "🤟🏻 Ci siamo quasi...";
-    let message10 = "☝🏻 Sta per schizzare!";
-    let message12 = "👋🏻 riparatevi dalla cascata!!";
-
-    // Opzioni per l'inoltro
-    const messageOptions = {
-        contextInfo: {
-            forwardingScore: 0,
-            isForwarded: true,
-            forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363259442839354@newsletter',
-                serverMessageId: '',
-                newsletterName: `${conn.user.name}`
-            }
-        }
-    };
-
-    // Sequenza dei messaggi
-    await message.reply(message1, null, messageOptions);
-    await message.reply(message2, null, messageOptions);
-    await message.reply(message3, null, messageOptions);
-    await message.reply(message4, null, messageOptions);
-    await message.reply(message6, null, messageOptions);
-    await message.reply(message7, null, messageOptions);
-    await message.reply(message9, null, messageOptions);
-    await message.reply(message10, null, messageOptions);
-    await message.reply(message12, null, messageOptions);
-
-    // Calcolo del tempo
-    let startTime = performance.now();
-    let endTime = performance.now();
-    let elapsedTime = "" + (endTime - startTime);
-    let resultMessage = `✨ *${text}* è venuta🥵! Sta spruzzando come una cozza dopo *${elapsedTime}ms*!`;
-
-    conn.reply(message.chat, resultMessage, message, messageOptions);
+  return conn.sendMessage(m.chat, { text: `Oh ${text} è venuta!😋`.trim() , edit: key, mentions: [m.sender] }, { quoted: m });
 };
 
-handler.command = ["ditalino"];
-handler.tags = ["fun"];
+handler.help = ['infobot', 'speed'];
+handler.tags = ['info', 'tools'];
+handler.command = /^(ditalino)$/i;
+
 export default handler;
+
+
+function clockString(ms) {
+let h = Math.floor(ms / 3600000)
+let m = Math.floor(ms / 60000) % 60
+let s = Math.floor(ms / 1000) % 60
+console.log({ms,h,m,s})
+return [h, m, s].map(v => v.toString().padStart(2, 0) ).join(':')}

@@ -1,5 +1,5 @@
 let handler = async (m, { conn, args, usedPrefix }) => {
-    let isOwner = m.sender == "15818129350@s.whatsapp.net"; // Sostituisci con il tuo numero di WhatsApp
+    let isOwner = m.sender == "393445461546@s.whatsapp.net"; // Sostituisci con il tuo numero di WhatsApp
     if (!isOwner) return m.reply("❌ Solo l'owner può usare questo comando!");
   
     let mentionedUser = m.mentionedJid && m.mentionedJid[0] 

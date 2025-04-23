@@ -19,12 +19,12 @@ let handler = async (m, { conn, command, args }) => {
     
     conn.reply(m.chat, `╭────═[ *N E G O Z I O* ]═─────⋆
 │╭───────────────···
-││✯ *Acquistate* : +${quantita} 💶 Unitycoins 
+││✯ *Acquistate* : +${quantita} 🌕 MoonCredits
 ││✯ *Costo* : -${costo} 💫 XP
 │╰────────────────···
 ╰───────────═┅═──────────`, m)
   } else {
-    conn.reply(m.chat, `🚩 Mi dispiace, non hai abbastanza *💫 XP* per comprare *${quantita} 💶 Unitycoins*.\nTi servono ancora *${costo - global.db.data.users[m.sender].exp} 💫 XP*!`, m)
+    conn.reply(m.chat, `🚩 Mi dispiace, non hai abbastanza *💫 XP* per comprare *${quantita} 🌕 MoonCredits*.\nTi servono ancora *${costo - global.db.data.users[m.sender].exp} 💫 XP*!`, m)
   }
 }
 

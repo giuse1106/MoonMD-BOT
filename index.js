@@ -16,13 +16,13 @@ const { say } = cfonts
 const rl = createInterface(process.stdin, process.stdout)
 
 // Aumenta il limite dei listener
-EventEmitter.defaultMaxListeners = 20;
+EventEmitter.defaultMaxListeners = 150;
 
-say('CHATUNITY\nBot\n3.0', {
+say('MoonMD\nBot\n2.0', {
     font: 'chrome',
     align: 'center',
     gradient: ['red', 'magenta']})
-    say(`developed by chatunity`, {
+    say(`developed by MoonStaff`, {
     font: 'console',
     align: 'center',
     gradient: ['red', 'magenta']})

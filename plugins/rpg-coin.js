@@ -1,57 +1,52 @@
-import fetch from 'node-fetch'
+const formatNumber = (num) => new Intl.NumberFormat('it-IT').format(num);
 
-let handler = async (m, { conn, usedPrefix }) => {
-    let rcanal = null;
-    
-    let who = m.quoted ? m.quoted.sender : m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
-    let user = global.db.data.users[who]
-    let name = conn.getName(who)
-    
-    if (!(who in global.db.data.users)) throw '🚩 Utente non trovato nel database'
-    if (!user.limit) user.limit = 0
+const handler = async (m, { conn, usedPrefix }) => {
+  const who = m.quoted?.sender || m.mentionedJid?.[0] || (m.fromMe ? conn.user.jid : m.sender);
+  const user = global.db.data.users[who];
+  const name = await conn.getName(who);
 
-    // Immagine del wallet
-    let imgUrl = 'https://i.ibb.co/4RSNsdx9/Sponge-Bob-friendship-wallet-meme-9.png'
-    let img = await (await fetch(imgUrl)).buffer().catch(_ => null)
-    
-    if (!img) throw '❌ Errore nel caricamento dell\'immagine'
+  if (!user) throw '🚩 Utente non trovato nel database.';
+  if (!user.limit) user.limit = 0;
 
-    // Testo formattato
-    let txt = `
-╭─「 💰 PORTAFOGLIO 」─
+  const thumbUrl = 'https://i.ibb.co/4RSNsdx9/Sponge-Bob-friendship-wallet-meme-9.png';
+  const thumb = await (await fetch(thumbUrl)).buffer().catch(() => null);
+  if (!thumb) throw '❌ Errore nel caricamento della miniatura.';
+
+  const text = `
+╭─────「 💰 」─────
 │
-│ 👤 Utente: ${name}
-│ 💰 Unitycoins: ${formatNumber(user.limit)} 💶
+│ 👤 *Utente:* ${name}
+│ 🌕 *MoonCredit:* ${formatNumber(user.limit)}
 │
-╰───────✦───────
+╰────────────────
 
-Usa *${usedPrefix}buy* per acquistare oggetti
-    `.trim()
+✨ Usa *${usedPrefix}buy* per acquistare oggetti.
+  `.trim();
 
-    await conn.sendMessage(m.chat, {
-        image: img,
-        caption: txt,
-        mentions: [who],
-        contextInfo: {
-            externalAdReply: {
-                title: `Portafoglio di ${name}`,
-                body: `Saldo: ${user.limit} UC`,
-                thumbnail: img,
-                mediaType: 1
-            }
-        }
-    })
-    
-    m.react('💶')
-}
+  const locationFake = {
+    key: {
+      participants: '0@s.whatsapp.net',
+      remoteJid: 'status@broadcast',
+      fromMe: false,
+      id: 'wallet-fake',
+    },
+    message: {
+      locationMessage: {
+        name: `💸 Portafoglio di ${name}`,
+        jpegThumbnail: thumb,
+      },
+    },
+    participant: '0@s.whatsapp.net',
+  };
 
-handler.help = ['wallet']
-handler.tags = ['economy']
-handler.command = ['soldi', 'wallet', 'portafoglio', 'uc', 'saldo','unitycoins']
-handler.register = true
+  await conn.sendMessage(m.chat, { text, mentions: [who] }, { quoted: locationFake });
 
-export default handler
+  await m.react('🌕');
+};
 
-function formatNumber(num) {
-    return new Intl.NumberFormat('it-IT').format(num)
-}
+handler.help = ['wallet'];
+handler.tags = ['economy'];
+handler.command = ['soldi', 'wallet', 'portafoglio', 'uc', 'saldo', 'unitycoins'];
+handler.register = true;
+
+export default handler;

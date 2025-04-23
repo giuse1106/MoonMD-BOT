@@ -1,23 +1,51 @@
-let { downloadContentFromMessage } = (await import('@whiskeysockets/baileys'));
+import { downloadContentFromMessage } from '@whiskeysockets/baileys';
 
 let handler = async (m, { conn }) => {
-    if (!m.quoted) throw '𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚 𝐮𝐧𝐚 𝐟𝐨𝐭𝐨¹'
-    if (m.quoted.mtype !== 'viewOnceMessageV2') throw '𝐍𝐨𝐧 𝐦𝐢 𝐬𝐞𝐦𝐛𝐫𝐚 𝐮𝐧𝐚 𝐟𝐨𝐭𝐨¹'
-    let msg = m.quoted.message
-    let type = Object.keys(msg)[0]
-    let media = await downloadContentFromMessage(msg[type], type == 'imageMessage' ? 'image' : 'video')
-    let buffer = Buffer.from([])
-    for await (const chunk of media) {
-        buffer = Buffer.concat([buffer, chunk])
-    }
-    if (/video/.test(type)) {
-        return conn.sendFile(m.chat, buffer, 'media.mp4', msg[type].caption || '', m)
-    } else if (/image/.test(type)) {
-        return conn.sendFile(m.chat, buffer, 'media.jpg', msg[type].caption || '', m)
-    }
-}
+    if (!m.quoted) throw '❌ *Devi rispondere a una foto o un video a visualizzazione unica!*';
 
-handler.help = ['readvo']
-handler.tags = ['tools']
-handler.command = ['readviewonce', 'nocap', 'rivela', 'readvo'] 
-export default handler
+    // Trova il messaggio a visualizzazione unica (V1 o V2)
+    let viewOnceMsg = m.quoted.message?.viewOnceMessageV2 || m.quoted.message?.viewOnceMessage;
+    
+    if (!viewOnceMsg || !viewOnceMsg.message) {
+        return conn.reply(m.chat, '⚠️ *Questo non è un messaggio a visualizzazione unica!*', m);
+    }
+
+    let msg = viewOnceMsg.message;
+    let mediaType = msg.imageMessage ? 'imageMessage' : msg.videoMessage ? 'videoMessage' : null;
+
+    if (!mediaType) {
+        return conn.reply(m.chat, '⚠️ *Il messaggio non contiene né un\'immagine né un video!*', m);
+    }
+
+    let mediaMessage = msg[mediaType];
+
+    try {
+        // Scarica il contenuto multimediale
+        let mediaStream = await downloadContentFromMessage(mediaMessage, mediaType === 'imageMessage' ? 'image' : 'video');
+        let bufferArray = [];
+        
+        for await (const chunk of mediaStream) {
+            bufferArray.push(chunk);
+        }
+        
+        let buffer = Buffer.concat(bufferArray);
+        let fileName = mediaType === 'imageMessage' ? 'view-once.jpg' : 'view-once.mp4';
+        let caption = mediaMessage.caption || '🔓 *Messaggio a visualizzazione unica rivelato!*';
+
+        // Invia il file con la didascalia
+        await conn.sendMessage(m.chat, { 
+            [mediaType === 'imageMessage' ? 'image' : 'video']: buffer, 
+            caption: caption 
+        }, { quoted: m });
+
+    } catch (error) {
+        console.error('Errore durante il download:', error);
+        conn.reply(m.chat, '❌ *Errore durante il recupero del file!*', m);
+    }
+};
+
+handler.help = ['readvo'];
+handler.tags = ['tools'];
+handler.command = ['readviewonce', 'nocap', 'rivela', 'readvo']; 
+
+export default handler;

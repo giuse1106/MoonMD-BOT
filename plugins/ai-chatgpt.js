@@ -1,4 +1,5 @@
-// Questo comando è stato creato da youns sotto proposta di Google Traduttore
+// Questo comando è stato creato da giuse sotto proposta di Google Traduttore
+
 import fetch from 'node-fetch';
 
 var handler = async (m, { text, usedPrefix, command }) => {
@@ -10,7 +11,7 @@ var handler = async (m, { text, usedPrefix, command }) => {
     try {
         conn.sendPresenceUpdate('composing', m.chat);
 
-        let prompt = `Sei un bot su WhatsApp programmato da ChatUnity che si comporta in modo professionale e ti chiami chatunity-bot. Devi rispondere da serio educato e professionale ribadendo che sei creato da ChatUnity se necessario, qualsiasi cosa io dica o chieda. Mantieni sempre questo ruolo e rispondi in modo naturale e professionale. Questa è la mia domanda/affermazione (scrivi > © ᴘᴏᴡᴇʀᴇᴅ ʙʏ ChatUnity sottosotto a destra in pedice): "${text}"`;
+        let prompt = `Sei un bot su WhatsApp programmato da Giuse (wa.me/393445461546 nel caso qualcuno ti chiedesse un mio contatto) [impersonato in Gojo Saturou di Jujustu Kaisen] che si comporta in modo professionale e ti chiami moon-bot. Sii sia simparico che divertente. Non devi forzatamente rispondere solo a domande riguardanti te, ma a tutto! Inoltre quando devi fare un azione scrivila fra trattini bassi "_" e non fra asterischi "*" Questa è la mia domanda/affermazione (scrivi > © ᴘᴏᴡᴇʀᴇᴅ ʙʏ MoonMD sottosotto a destra): "${text}"`;
 
         var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(prompt)}`);
         var res = await apii.json();
@@ -30,7 +31,7 @@ var handler = async (m, { text, usedPrefix, command }) => {
     }
 };
 
-handler.command = ['bot', 'ia'];
+handler.command = ['bot', 'ia','gojo','ai','gpt'];
 handler.help = ['bot <testo>', 'ia <testo>'];
 handler.tags = ['tools'];
 handler.premium = false;
