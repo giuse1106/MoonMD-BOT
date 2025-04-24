@@ -7,25 +7,28 @@ let handler = async (m, { conn, text }) => {
 
     if (conn.user.jid == conn.user.jid) {
         try {
-            // Esegui il comando git pull per aggiornare il repository da GitHub
-            let stdout = execSync('git pull' + (m.fromMe && text ? ' ' + text : ''))
-            let output = stdout.toString()
-
-            // Analizza l'output di git per trovare modifiche nella cartella /plugins
+            // Forza l'aggiornamento del repository, forzando il pull
+            execSync('git fetch --all')  // Scarica tutti i dati dal repository remoto
+            execSync('git reset --hard origin/main')  // Allinea la tua versione locale a quella su GitHub (main è il branch di default, potrebbe variare)
+            
+            // Analizza le modifiche dei file
+            let stdout = execSync('git status')
             let changes = ''
-            if (output.includes('Added')) {
-                changes += '[+] Aggiunto ' + output.split('Added')[1].split('\n')[0] + '\n'
+            
+            // Verifica se ci sono file aggiunti, modificati o eliminati
+            if (stdout.includes('Changes to be committed:')) {
+                changes += '[+] Aggiunto: ' + stdout.split('Changes to be committed:')[1].split('\n')[0].trim() + '\n'
             }
-            if (output.includes('Removed')) {
-                changes += '[-] Rimosso ' + output.split('Removed')[1].split('\n')[0] + '\n'
+            if (stdout.includes('Changes not staged for commit:')) {
+                changes += '[/] Modificato: ' + stdout.split('Changes not staged for commit:')[1].split('\n')[0].trim() + '\n'
             }
-            if (output.includes('Modified')) {
-                changes += '[/] Modificato ' + output.split('Modified')[1].split('\n')[0] + '\n'
+            if (stdout.includes('deleted')) {
+                changes += '[-] Rimosso: ' + stdout.split('deleted')[1].split('\n')[0].trim() + '\n'
             }
 
-            // Copia la cartella /plugins dal repository GitHub
-            const source = path.join(__dirname, 'plugins')
-            const destination = path.join(__dirname, 'MoonMD-BOT', 'plugins')
+            // Copia la cartella /plugins dal repository GitHub nella cartella corretta
+            const source = path.join(__dirname, 'plugins') // Path di origine (plugins nella repo)
+            const destination = path.join(__dirname, 'MoonMD-BOT', 'plugins') // Path di destinazione
 
             // Verifica se la cartella di destinazione esiste, se non esiste la crea
             if (!fs.existsSync(destination)) {
@@ -43,7 +46,7 @@ let handler = async (m, { conn, text }) => {
                 }
             })
 
-            // Rispondi al messaggio con i dettagli delle modifiche
+            // Rispondi con le modifiche effettuate
             await conn.reply(m.chat, changes || 'Nessuna modifica rilevata', m)
             await m.react('✅')
         } catch (error) {
